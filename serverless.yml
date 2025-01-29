@@ -1,0 +1,56 @@
+service: autonomia-auth
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-east-1'}
+  environment:
+    JWT_SECRET: ${ssm:/autonomia/${self:provider.stage}/jwt-secret}
+    USE_DATABASE: ${ssm:/autonomia/${self:provider.stage}/use-database}
+    DB_HOST: ${ssm:/autonomia/${self:provider.stage}/db-host}
+    DB_NAME: ${ssm:/autonomia/${self:provider.stage}/db-name}
+    DB_USER: ${ssm:/autonomia/${self:provider.stage}/db-user}
+    DB_PASSWORD: ${ssm:/autonomia/${self:provider.stage}/db-password}
+    DB_PORT: ${ssm:/autonomia/${self:provider.stage}/db-port}
+  vpc:
+    securityGroupIds:
+      - ${ssm:/autonomia/${self:provider.stage}/lambda-sg}
+    subnetIds:
+      - ${ssm:/autonomia/${self:provider.stage}/subnet-1}
+      - ${ssm:/autonomia/${self:provider.stage}/subnet-2}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - ssm:GetParameter
+          Resource: 
+            - arn:aws:ssm:${self:provider.region}:*:parameter/autonomia/${self:provider.stage}/*
+        - Effect: Allow
+          Action:
+            - ec2:CreateNetworkInterface
+            - ec2:DescribeNetworkInterfaces
+            - ec2:DeleteNetworkInterface
+            - ec2:AssignPrivateIpAddresses
+            - ec2:UnassignPrivateIpAddresses
+          Resource: "*"
+
+package:
+  patterns:
+    - '!./**'
+    - 'dist/**'
+    - 'package.json'
+    - 'package-lock.json'
+    - 'node_modules/**'
+
+functions:
+  login:
+    handler: dist/index.login
+    events:
+      - http:
+          path: /auth/login
+          method: post
+          cors: true
