@@ -48,7 +48,7 @@ package:
 
 functions:
   login:
-    handler: dist/index.login
+    handler: dist/src/handler/authHandler.login
     events:
       - http:
           path: /auth/login
