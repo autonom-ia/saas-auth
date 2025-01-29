@@ -64,7 +64,12 @@ function generateId() {
   });
 }
 
+const initializeMockDatabase = () => {
+  return { User: UserModel };
+};
+
 module.exports = {
   User,
-  UserModel
+  UserModel,
+  initializeMockDatabase
 };

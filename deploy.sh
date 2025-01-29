@@ -32,10 +32,13 @@ print_message "yellow" "Running tests..."
 npm test
 check_result "Tests completed successfully"
 
-# 3. Preparando para deploy (limpeza, minificação)
+# 3. Preparando para deploy (limpeza, minificação e ofuscação)
 print_message "yellow" "Preparing for deployment..."
+print_message "yellow" "- Cleaning dist directory"
+print_message "yellow" "- Minifying code with terser"
+print_message "yellow" "- Obfuscating code with javascript-obfuscator"
 npm run predeploy
-check_result "Code minification completed"
+check_result "Code preparation completed (minified and obfuscated)"
 
 # 4. Fazendo deploy
 print_message "yellow" "Deploying to AWS..."
